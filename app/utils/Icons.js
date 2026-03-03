@@ -3,6 +3,7 @@ export const arrowLeft = <i className='fa-solid fa-arrow-left'></i>;
 
 export const add = <i className='fa-solid fa-plus'></i>;
 export const moon = <i className='fa-solid fa-moon'></i>;
+export const sun = <i className='fa-solid fa-sun'></i>;
 export const search = <i className='fa-solid fa-magnifying-glass'></i>;
 export const bell = <i className='fa-solid fa-bell'></i>;
 export const home = <i className='fa-solid fa-house'></i>;
@@ -24,3 +25,4 @@ export const admin = <i className='fa-solid fa-lock'></i>;
 export const linked = <i className='fa-brands fa-linkedin'></i>;
 export const mailIcon = <i className='fa-solid fa-envelope'></i>;
 export const plus = <i className='fa-solid fa-plus'></i>;
+export const comment = <i className='fa-solid fa-comment'></i>;

@@ -8,44 +8,34 @@ interface Props {
 }
 
 const Modal = ({ content }: Props) => {
-  const { closeModal, theme } = useGlobalState();
+  const { closeModal } = useGlobalState();
 
   return (
-    <ModalStyled theme={theme}>
-      <div className='modal-overlay' onClick={closeModal}></div>
-      <div className='modal-content'>{content}</div>
-    </ModalStyled>
+    <Overlay onClick={closeModal}>
+      <Card onClick={(e) => e.stopPropagation()}>{content}</Card>
+    </Overlay>
   );
 };
 
-const ModalStyled = styled.div`
+const Overlay = styled.div`
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: grid;
-  place-items: center;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
   z-index: 1000;
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.5);
-    filter: blur(4px);
-  }
-  .modal-content {
-    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.3);
-    border-radius: 1rem;
-    padding: 2rem;
-    position: relative;
-    max-width: 630px;
-    width: 100%;
-    z-index: 1001;
-    background-color: ${(props) => props.theme.colorBg2};
-  }
+`;
+
+const Card = styled.div`
+  width: min(760px, 100%);
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.35);
 `;
 
 export default Modal;

@@ -1,28 +1,111 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
-  relationMode = "prisma"
+}
+
+model Board {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  color       String   @default("#7263F3")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
+  columns     Column[]
+  labels      Label[]
+  tasks       Task[]
+
+  @@index([userId])
+}
+
+model Column {
+  id        String   @id @default(cuid())
+  name      String
+  position  Int      @default(0)
+  color     String?  @default("#6c7983")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  boardId   String
+  userId    String
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  tasks     Task[]
+
+  @@index([boardId])
+  @@index([userId])
 }
 
 model Task {
-  id        String  @id @default(cuid()) @map("_id")
-  title     String
+  id          String        @id @default(cuid())
+  title       String
   description String?
-  date      String
-  isCompleted Boolean @default(false)
-  isImportant Boolean @default(false)
+  checklist   String        @default("[]")
+  assigneeIds String        @default("[]")
+  date        String
+  position    Int           @default(0)
+  isCompleted Boolean       @default(false)
+  isImportant Boolean       @default(false)
+  priority    String        @default("medium")
+  dueDate     DateTime?
+  reminder    DateTime?
+  reminderSent Boolean      @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  userId      String
+  boardId     String?
+  columnId    String?
+  activities  ActivityLog[]
+  comments    Comment[]
+  column      Column?       @relation(fields: [columnId], references: [id])
+  board       Board?        @relation(fields: [boardId], references: [id])
+  labels      Label[]       @relation("LabelToTask")
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  @@index([userId])
+  @@index([boardId])
+  @@index([columnId])
+}
+
+model Label {
+  id        String   @id @default(cuid())
+  name      String
+  color     String   @default("#6c7983")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   userId    String
+  boardId   String
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  tasks     Task[]   @relation("LabelToTask")
+
+  @@index([userId])
+  @@index([boardId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+}
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+  action      String
+  description String?
+  oldValue    String?
+  newValue    String?
+  createdAt   DateTime @default(now())
+  userId      String
+  taskId      String
+  task        Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([userId])
 }

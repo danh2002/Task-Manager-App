@@ -1,11 +1,14 @@
 "use client";
 import { useGlobalState } from "@/app/context/globalProvider";
-import React from "react";
+import React, { useState, useEffect } from "react";
+
+
 import styled from "styled-components";
 import CreateContent from "../Modals/CreateContent";
 import TaskItem from "../TaskItem/TaskItem";
 import { plus } from "@/app/utils/Icons";
 import Modal from "../Modals/Modal";
+import SearchFilter from "../Search/SearchFilter";
 
 interface Props {
   title: string;
@@ -13,23 +16,78 @@ interface Props {
 }
 
 const Tasks = ({ title, tasks }: Props) => {
-  const { theme, isLoading, openModal, modal } = useGlobalState();
+  const { theme, isLoading, openModal, modal, allTasks } = useGlobalState();
+
+
+  const [searchResults, setSearchResults] = useState<any[] | undefined>(undefined);
+  const [localTasks, setLocalTasks] = useState<any[]>(tasks);
+
+  // Sync local tasks when props tasks change
+  useEffect(() => {
+    setLocalTasks(tasks);
+  }, [tasks]);
+
+  // Determine which tasks to display
+  const displayTasks = searchResults !== undefined ? searchResults : localTasks;
+
+  const handleSearchResults = (results: any[] | undefined) => {
+    setSearchResults(results);
+  };
+
+  const handleTaskUpdate = () => {
+    // Reload tasks from API
+    allTasks();
+  };
+
+  // Callback to remove task from local state immediately
+  const handleTaskDeleted = (deletedTaskId: string) => {
+    // Remove from localTasks immediately for instant UI update
+    setLocalTasks(prev => prev.filter(task => task.id !== deletedTaskId));
+    // Also clear from searchResults if present
+    if (searchResults) {
+      setSearchResults(prev => prev?.filter(task => task.id !== deletedTaskId));
+    }
+  };
+
   return (
     <TaskStyled theme={theme}>
-      {modal && <Modal content={<CreateContent/>} />}
+      {modal && (
+        <Modal content={<CreateContent/>} />
+      )}
+
+
       <h1>{title}</h1>
+
+      
+      {/* Search and Filter Component */}
+      <SearchFilter onSearchResults={handleSearchResults} />
+      
       {!isLoading ? (
         <div className='tasks grid'>
-          {tasks.map((task) => (
-            <TaskItem
-              key={task.id}
-              title={task.title}
-              description={task.description}
-              date={task.date}
-              isCompleted={task.isCompleted}
-              id={task.id}
-            />
-          ))}
+          {displayTasks.length > 0 ? (
+            displayTasks.map((task) => (
+              <TaskItem
+                key={task.id}
+                title={task.title}
+                description={task.description}
+                date={task.date}
+                isCompleted={task.isCompleted}
+                isImportant={task.isImportant}
+                priority={task.priority}
+                labels={task.labels}
+                assigneeIds={task.assigneeIds}
+                id={task.id}
+                onTaskUpdate={handleTaskUpdate}
+                onTaskDeleted={handleTaskDeleted}
+              />
+            ))
+          ) : (
+            <NoTasksMessage theme={theme}>
+              {searchResults !== undefined 
+                ? "No tasks found matching your search" 
+                : "No tasks yet. Create your first task!"}
+            </NoTasksMessage>
+          )}
           <button className='create-task' onClick={openModal}>
             {plus}
             Add New Task
@@ -63,6 +121,7 @@ const TaskStyled = styled.main`
     font-size: clamp(1.5rem, 2vw, 2rem);
     font-weight: 800;
     position: relative;
+    color: ${(props) => props.theme.colorGrey0};
 
     &::after {
       content: "";
@@ -81,17 +140,25 @@ const TaskStyled = styled.main`
     justify-content: center;
     gap: 0.5rem;
     height: 16rem;
-    color: ${(props) => props.theme.colorGrey2};
+    color: ${(props) => props.theme.colorGrey1};
     font-weight: 600;
     cursor: pointer;
     border-radius: 1rem;
-    border: 3px dashed ${(props) => props.theme.colorGrey5};
+    border: 3px dashed ${(props) => props.theme.colorGrey4};
     transition: all 0.3s ease-in-out;
     &:hover {
-      background-color: ${(props) => props.theme.colorGrey5};
+      background-color: ${(props) => props.theme.colorGrey4};
       color: ${(props) => props.theme.colorGrey0};
     }
   }
+`;
+
+const NoTasksMessage = styled.div`
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem;
+  color: ${(props) => props.theme.colorGrey1};
+  font-size: 1rem;
 `;
 
 export default Tasks;

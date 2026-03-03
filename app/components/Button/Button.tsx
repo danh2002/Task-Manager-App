@@ -15,7 +15,49 @@ interface Props {
   type?: "button" | "submit" | "reset" | undefined;
   border?: string;
   color?: string;
+  disabled?: boolean;
+  $active?: boolean;
+  $variant?: "primary" | "secondary" | "danger" | "success";
 }
+
+const ButtonStyled = styled.button`
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 5;
+  background: ${(props) => props.theme.colorPrimary};
+  color: white;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  i {
+    font-size: 14px;
+    color: inherit;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+`;
 
 const Button = ({
   icon,
@@ -28,7 +70,10 @@ const Button = ({
   click,
   type,
   border,
-  color
+  color,
+  disabled,
+  $active,
+  $variant
 }: Props) => {
   const { theme } = useGlobalState();
 
@@ -38,42 +83,22 @@ const Button = ({
       type={type}
       style={{
         backgroundColor: background,
-        padding: padding || "0.5rem 1rem",
-        borderRadius: borderRad || "0.5rem",
-        fontWeight: fw || "500",
-        fontSize: fs,
+        padding: padding || "8px 16px",
+        borderRadius: borderRad || "6px",
+        fontWeight: fw || "600",
+        fontSize: fs || "14px",
         border: border || "none",
-        color: color || theme.colorGrey0,
+        color: color || "#ffffff",
+        opacity: disabled ? 0.5 : 1,
+        cursor: disabled ? "not-allowed" : "pointer",
       }}
-      onClick={click}
+      onClick={disabled ? undefined : click}
+      disabled={disabled}
     >
       {icon && icon}
       {name && name}
     </ButtonStyled>
   );
 };
-
-const ButtonStyled = styled.button`
-  position: relative;
-  display: flex;
-  align-items: center;
-  color: ${(props) => props.theme.colorGrey2};
-  z-index: 5;
-  cursor: pointer;
-  transition: all 0.55s ease-in-out;
-  i {
-    font-size: 1.5rem;
-    color: ${(props) => props.theme.colorGrey2};
-    margin-right: 1rem;
-    transition: all 0.55s ease-in-out;
-  }
-
-  &:hover {
-    color: ${(props) => props.theme.colorGrey0};
-    i {
-      color: ${(props) => props.theme.colorGrey0};
-    }
-  }
-`;
 
 export default Button;

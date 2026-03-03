@@ -11,17 +11,14 @@ const GlobalStyleProvider = ({ children }: props) => {
 };
 
 const GlobalStyle = styled.div`
-  padding: 2.5rem;
   display: flex;
-  gap: 2.5rem;
-  height: 100%;
+  gap: 0;
+  min-height: 100%;
+  width: 100%;
   transition: all 0.3s ease-in-out;
 
-
   @media screen and (max-width: 768px) {
-    padding: 1rem;
-    gap: 1rem;
-  
+    gap: 0;
   }
 
   .grid {
