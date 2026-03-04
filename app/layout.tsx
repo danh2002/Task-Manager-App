@@ -23,6 +23,16 @@ const nunito = Nunito({
   subsets: ["latin"],
 });
 
+const clerkPublishableKey =
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ??
+  process.env.CLERK_PUBLISHABLE_KEY;
+
+if (!clerkPublishableKey) {
+  throw new Error(
+    "Missing Clerk publishable key. Set NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY (or CLERK_PUBLISHABLE_KEY) in your deployment environment."
+  );
+}
+
 export const metadata: Metadata = {
   title: "Task Manager App",
   description: "A task management application ",
@@ -34,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider publishableKey={clerkPublishableKey}>
       <ChunkErrorHandler />
       <html lang="en" suppressHydrationWarning>
         <head>
