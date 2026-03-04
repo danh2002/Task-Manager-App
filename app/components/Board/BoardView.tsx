@@ -68,7 +68,7 @@ const BoardView: React.FC<BoardViewProps> = ({ boardId }) => {
   const [columnToDelete, setColumnToDelete] = useState<{ id: string; name: string } | null>(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { delay: 180, tolerance: 6 } }),
+    useSensor(PointerSensor, { activationConstraint: { delay: 20, tolerance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
